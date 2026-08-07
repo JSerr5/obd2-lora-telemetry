@@ -1,0 +1,123 @@
+services:
+  # ==========================================
+  # 1. MongoDB - Requerido por Orion
+  # ==========================================
+  mongo-db:
+    image: mongo:4.4
+    hostname: mongo-db
+    container_name: fiware-mongo
+    expose:
+      - "${MONGO_PORT:-27017}" # Solo expuesto en la red interna de Docker
+    networks:
+      - iot-network
+    volumes:
+      - mongo-data:/data/db
+    command: --nojournal # Optimización para reducir operaciones I/O en entornos pequeños
+
+  # ==========================================
+  # 2. FIWARE Orion Context Broker
+  # ==========================================
+  orion:
+    image: fiware/orion:latest
+    hostname: orion
+    container_name: fiware-orion
+    depends_on:
+      - mongo-db
+    ports:
+      - "${ORION_PORT:-1026}:1026"
+    networks:
+      - iot-network
+    command: -dbURI mongodb://mongo-db -logLevel DEBUG -corsOrigin __ALL
+    healthcheck:
+      test: curl --fail -s http://localhost:1026/version || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================
+  # 2b. Mosquitto MQTT Broker
+  # ==========================================
+  mosquitto:
+    image: eclipse-mosquitto:2
+    hostname: mosquitto
+    container_name: fiware-mosquitto
+    ports:
+      - "1883:1883"
+    networks:
+      - iot-network
+    volumes:
+      - ./mosquitto:/mosquitto/config
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+
+  # ==========================================
+  # 3. InfluxDB - Time-Series DB (Histórico Ultra-rápido)
+  # ==========================================
+  influxdb:
+    image: influxdb:1.8
+    hostname: influxdb
+    container_name: telemetry-influxdb
+    ports:
+      - "${INFLUXDB_PORT:-8086}:8086" # Expuesto para futuras consultas (ej. Grafana)
+    networks:
+      - iot-network
+    environment:
+      - INFLUXDB_DB=${INFLUXDB_DB:-telemetry_cb300f}
+      - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER:-admin}
+      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-admin}
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+
+  # ==========================================
+  # 4. Nginx Reverse Proxy (mTLS Security)
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: mTLS-nginx-proxy
+    ports:
+      - "8443:8443"
+      - "3000:3000"
+    networks:
+      - iot-network
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./dashboard:/usr/share/nginx/html:ro
+    depends_on:
+      - orion
+
+  # ==========================================
+  # 5. FIWARE Cygnus (Conector Orion -> InfluxDB)
+  # Nota: QuantumLeap se usa para CrateDB/TimescaleDB. 
+  # Cygnus es el componente oficial de FIWARE para InfluxDB.
+  # ==========================================
+  cygnus:
+    image: fiware/cygnus-ngsi:latest
+    hostname: cygnus
+    container_name: fiware-cygnus
+    networks:
+      - iot-network
+    depends_on:
+      - influxdb
+    expose:
+      - "5050" # Puerto donde recibe notificaciones de Orion
+    environment:
+      - "CYGNUS_INFLUXDB_HOST=influxdb"
+      - "CYGNUS_INFLUXDB_PORT=8086"
+      - "CYGNUS_INFLUXDB_USER=${INFLUXDB_ADMIN_USER:-admin}"
+      - "CYGNUS_INFLUXDB_PASS=${INFLUXDB_ADMIN_PASSWORD:-admin}"
+      - "CYGNUS_INFLUXDB_USE_HTTPS=false"
+      - "CYGNUS_LOG_LEVEL=DEBUG"
+      - "CYGNUS_SERVICE_PORT=5050"
+      - "CYGNUS_API_PORT=5080"
+      # Habilitar el sumidero (sink) de InfluxDB
+      - "CYGNUS_INFLUXDB_SINK=true"
+
+networks:
+  iot-network:
+    driver: bridge
+    name: telemetria-network
+
+volumes:
+  mongo-data:
+  influxdb-data:

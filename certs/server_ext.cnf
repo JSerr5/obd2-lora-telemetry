@@ -1,0 +1,4 @@
+[v3_ca]
+subjectAltName=IP:10.162.40.214,DNS:10.162.40.214,DNS:localhost
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
