@@ -1,8 +1,98 @@
-# 🏍️ Sistema de Telemetría IoT de Extremo a Extremo (Honda CB300F)
+[🇬🇧 English](#-end-to-end-iot-telemetry-system-honda-cb300f) | [🇪🇸 Español](#-sistema-de-telemetría-iot-de-extremo-a-extremo-honda-cb300f)
+
+---
+
+<h1 id="english">🏍️ End-to-End IoT Telemetry System (Honda CB300F)</h1>
 
 > [!NOTE]
 > **Proof of Concept (PoC) / Prototipo:** This repository contains the source code for an academic/demonstration prototype. The hardcoded credentials, keys, and certificates present in the codebase were generated exclusively for a temporary, isolated local environment and are not used in any production system.
-> 
+
+![Dashboard IoT](images/iot%20dashboard.jpg)
+
+This project is a comprehensive and secure solution for capturing on-board diagnostic data (OBD2) via the CAN bus on a motorcycle, enabling its transmission, processing, and real-time visualization. The architecture uses **ESP32-S3** hardware, wireless transmission over **LoRa**, **mTLS** security, a local cloud infrastructure managed by **Docker** with the **FIWARE** ecosystem, and time-series database storage.
+
+---
+
+## 🛠️ Architecture and Workflow
+
+The system is divided into three main components that operate synchronously and asynchronously to maximize data reliability and security:
+
+1. **Telemetry Node (Motorcycle - ESP32-S3):** Reads the CAN bus (OBD2 PID requests), packages the metrics (RPM, Speed, Temperature, Odometer), encrypts them with **AES-256-GCM**, and transmits them via LoRa at 433MHz.
+2. **Gateway Node (Receiver - ESP32-S3):** Listens continuously via LoRa. Decrypts the information, validates the signatures, adapts it to the **NGSI v2 JSON** format, and forwards it to the cloud infrastructure using HTTPS and **mTLS**.
+3. **Local Server (Docker Containers):** A complete ecosystem including **Nginx** as a reverse proxy with mTLS, **FIWARE Orion Context Broker** for context management, **FIWARE Cygnus** for subscriptions, and **InfluxDB** for storing time-series data.
+
+### Hardware Images (PCBs)
+
+Below are images of the nodes in operation:
+
+| Transmitter Node (Motorcycle) | Receiver Node (Gateway) |
+|:---:|:---:|
+| <img src="images/transmiter%20node.jpg" width="400"> | <img src="images/reception%20node.jpg" width="400"> |
+| *Capturing OBD2 parameters and securely sending via LoRa.* | *Reception, decryption, and mTLS forwarding to FIWARE.* |
+
+**On-Bike Testing:**
+<br>
+<img src="images/test%20on%20bike.jpg" width="600">
+
+---
+
+## 🚀 System Deployment (Getting Started)
+
+### 1. Docker Infrastructure and Services Deployment
+This step brings up the database architecture, Orion, Cygnus, and the Nginx proxy.
+1. Open **PowerShell** at the root of the project.
+2. Generate mTLS certificates (first time only):
+   ```powershell
+   .\scripts\generate_certs.ps1
+   ```
+3. Bring up containers and services in the background:
+   ```powershell
+   docker-compose up -d
+   ```
+4. Set up the FIWARE Cygnus subscription:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\setup_subscription.ps1
+   ```
+
+### 2. Flashing the Gateway Node
+1. Connect your **ESP32-S3** (Receiver) via USB.
+2. Configure credentials (SSID and Password) and certificates (`ca.crt`, `client_esp32.crt`, and `client_esp32.key`) inside the `src/gateway.cpp` file.
+3. Compile and flash:
+   ```powershell
+   pio run -e gateway_node -t upload
+   ```
+
+### 3. Flashing the Telemetry Node (Motorcycle)
+1. Connect the **ESP32-S3** (Transmitter) on the motorcycle via USB.
+2. Compile and flash:
+   ```powershell
+   pio run -e telemetry_node -t upload
+   ```
+
+### 4. Visualization Dashboard
+Simply navigate to the `dashboard` directory and open the `index.html` file in your browser to view telemetry operating in real-time with a modern Glassmorphism interface.
+
+---
+
+## 🔒 Security Considerations
+- A **Zero-Trust LoRa** principle is employed.
+- Static buffers (plaintext and ciphertext) are limited to **256 bytes** to prevent memory overflows when encrypting with `mbedtls`.
+- Gateway to Cloud communication is 100% shielded by **mTLS** through the reverse proxy.
+
+## 🔌 Hardware Schematic (Pinout)
+The system uses the **SN65HVD230 (CAN)** module and the **SX1278 (LoRa)** transceiver. The default configuration is:
+- **CAN:** TX (GPIO 5), RX (GPIO 4)
+- **LoRa:** SCK (GPIO 12), MISO (GPIO 13), MOSI (GPIO 11), NSS (GPIO 10), RST (GPIO 9), DIO0 (GPIO 14)
+
+<br>
+<br>
+<hr>
+<br>
+<br>
+
+<h1 id="español">🏍️ Sistema de Telemetría IoT de Extremo a Extremo (Honda CB300F)</h1>
+
+> [!NOTE]
 > *Este repositorio contiene el código fuente de un prototipo académico/demostrativo. Las credenciales y certificados incluidos en el código fueron generados exclusivamente para un entorno local temporal y aislado, y no se utilizan en ningún sistema en producción.*
 
 ![Dashboard IoT](images/iot%20dashboard.jpg)
