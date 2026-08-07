@@ -1,5 +1,3 @@
-[🇬🇧 English](#-end-to-end-iot-telemetry-system-honda-cb300f) | [🇪🇸 Español](#-sistema-de-telemetría-iot-de-extremo-a-extremo-honda-cb300f)
-
 ---
 
 <h1 id="english">🏍️ End-to-End IoT Telemetry System (Honda CB300F)</h1>
