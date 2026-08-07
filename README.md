@@ -1,5 +1,10 @@
 # 🏍️ Sistema de Telemetría IoT de Extremo a Extremo (Honda CB300F)
 
+> [!NOTE]
+> **Proof of Concept (PoC) / Prototipo:** This repository contains the source code for an academic/demonstration prototype. The hardcoded credentials, keys, and certificates present in the codebase were generated exclusively for a temporary, isolated local environment and are not used in any production system.
+> 
+> *Este repositorio contiene el código fuente de un prototipo académico/demostrativo. Las credenciales y certificados incluidos en el código fueron generados exclusivamente para un entorno local temporal y aislado, y no se utilizan en ningún sistema en producción.*
+
 ![Dashboard IoT](images/iot%20dashboard.jpg)
 
 Este proyecto es una solución integral y segura para la captura de datos de diagnóstico (OBD2) vía bus CAN en una motocicleta y su transmisión, procesamiento y visualización en tiempo real. La arquitectura utiliza hardware **ESP32-S3**, transmisión inalámbrica por **LoRa**, seguridad **mTLS**, infraestructura cloud local gestionada por **Docker** con el ecosistema **FIWARE**, y almacenamiento en bases de datos de series temporales.
