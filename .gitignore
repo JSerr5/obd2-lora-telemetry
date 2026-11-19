@@ -3,3 +3,14 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# Secretos: claves privadas, CSRs y seriales de la CA (generar con scripts/generate_certs.ps1)
+certs/*.key
+certs/*.csr
+certs/*.srl
+
+# Variables de entorno reales
+.env
+
+# Firmware compilado subido por OTA (contiene credenciales embebidas)
+scripts/firmware_update/
