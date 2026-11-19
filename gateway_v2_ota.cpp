@@ -20,10 +20,12 @@ void enviarFIWARE_mTLS(); // Nuevo prototipo
 
 // -------- ZERO TRUST Y mTLS --------
 LoRaCrypto crypto;
+// REEMPLAZA con tu propia clave de 32 bytes (debe ser igual en emisor y gateway)
 const uint8_t AES_KEY[LORA_AES_KEY_SIZE] = {
-    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xFE, 0xDC, 0xBA,
-    0x98, 0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-    0xCD, 0xEF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10};
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 // --- CERTIFICADOS mTLS ---
 const char *rootCACertificate = R"EOF(
@@ -62,9 +64,7 @@ uaT/udhPI9wgdXNUNkDlG7xfFWTAhpP8TA==
 
 const char *clientPrivateKey = R"EOF(
 -----BEGIN EC PRIVATE KEY-----
-MHcCAQEEIIqmtGx8V4UYpw3D5yY/ZdzqFxle/tKtQpA0gX02sAWgoAoGCCqGSM49
-AwEHoUQDQgAEpOfrMeTbt9imCrfeAVevkQ1Hl2df8effcZHQ8jcarz2JekYfiCYF
-q9z9+jEgkwNiw6oyWqbGDANu1jry+yQ01Q==
+PEGA_AQUI_TU_CLAVE_PRIVADA (contenido de certs/client_esp32.key)
 -----END EC PRIVATE KEY-----
 )EOF";
 
@@ -72,8 +72,8 @@ const char *fiware_url_https = "https://10.162.40.214:8443/v2/entities/"
                                "urn:ngsi-ld:Motorcycle:CB300F_Node01/attrs";
 
 // -------- WIFI Y MQTT --------
-const char *ssid = "Serrato";
-const char *password = "pi-cb300f";
+const char *ssid = "TUSSID";
+const char *password = "TU PASSWORD";
 const char *mqtt_server = "10.162.40.214";
 const int mqtt_port = 1883;
 

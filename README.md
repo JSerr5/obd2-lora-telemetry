@@ -3,7 +3,7 @@
 <h1 id="english">🏍️ End-to-End IoT Telemetry System (Honda CB300F)</h1>
 
 > [!NOTE]
-> **Proof of Concept (PoC) / Prototipo:** This repository contains the source code for an academic/demonstration prototype. The hardcoded credentials, keys, and certificates present in the codebase were generated exclusively for a temporary, isolated local environment and are not used in any production system.
+> **Proof of Concept (PoC) / Prototipo:** This repository contains the source code for an academic/demonstration prototype. No real credentials or private keys are included: Wi-Fi credentials, the LoRa AES key, and the mTLS private key appear as placeholders (`TUSSID`, `TU PASSWORD`, etc.) and must be replaced with your own.
 
 ![Dashboard IoT](images/iot%20dashboard.jpg)
 
@@ -54,7 +54,7 @@ This step brings up the database architecture, Orion, Cygnus, and the Nginx prox
 
 ### 2. Flashing the Gateway Node
 1. Connect your **ESP32-S3** (Receiver) via USB.
-2. Configure credentials (SSID and Password) and certificates (`ca.crt`, `client_esp32.crt`, and `client_esp32.key`) inside the `src/gateway.cpp` file.
+2. Replace the placeholders in `src/gateway.cpp`: Wi-Fi (`TUSSID` / `TU PASSWORD`), the certificates (`ca.crt`, `client_esp32.crt`) and the private key (`client_esp32.key`) generated in step 1, and the `AES_KEY` (it must match the one in `src/main.cpp`).
 3. Compile and flash:
    ```powershell
    pio run -e gateway_node -t upload
@@ -76,6 +76,7 @@ Simply navigate to the `dashboard` directory and open the `index.html` file in y
 - A **Zero-Trust LoRa** principle is employed.
 - Static buffers (plaintext and ciphertext) are limited to **256 bytes** to prevent memory overflows when encrypting with `mbedtls`.
 - Gateway to Cloud communication is 100% shielded by **mTLS** through the reverse proxy.
+- Private keys (`certs/*.key`), `.env` and compiled firmware are excluded via `.gitignore`: generate your own with `scripts/generate_certs.ps1` and never commit them.
 
 ## 🔌 Hardware Schematic (Pinout)
 The system uses the **SN65HVD230 (CAN)** module and the **SX1278 (LoRa)** transceiver. The default configuration is:
@@ -91,7 +92,7 @@ The system uses the **SN65HVD230 (CAN)** module and the **SX1278 (LoRa)** transc
 <h1 id="español">🏍️ Sistema de Telemetría IoT de Extremo a Extremo (Honda CB300F)</h1>
 
 > [!NOTE]
-> *Este repositorio contiene el código fuente de un prototipo académico/demostrativo. Las credenciales y certificados incluidos en el código fueron generados exclusivamente para un entorno local temporal y aislado, y no se utilizan en ningún sistema en producción.*
+> *Este repositorio contiene el código fuente de un prototipo académico/demostrativo. No se incluyen credenciales ni claves privadas reales: el WiFi, la clave AES de LoRa y la clave privada mTLS aparecen como marcadores (`TUSSID`, `TU PASSWORD`, etc.) y deben reemplazarse por los tuyos.*
 
 ![Dashboard IoT](images/iot%20dashboard.jpg)
 
@@ -142,7 +143,7 @@ Este paso levanta la arquitectura de bases de datos, Orion, Cygnus y el proxy Ng
 
 ### 2. Flasheo del Nodo Gateway
 1. Conecta tu **ESP32-S3** (Receptor) por USB.
-2. Configura las credenciales (SSID y Password) y certificados (`ca.crt`, `client_esp32.crt` y `client_esp32.key`) dentro del archivo `src/gateway.cpp`.
+2. Reemplaza los marcadores en `src/gateway.cpp`: WiFi (`TUSSID` / `TU PASSWORD`), los certificados (`ca.crt`, `client_esp32.crt`) y la clave privada (`client_esp32.key`) generados en el paso 1, y la `AES_KEY` (debe ser la misma que en `src/main.cpp`).
 3. Compila y flashea:
    ```powershell
    pio run -e gateway_node -t upload
@@ -164,6 +165,7 @@ Simplemente entra al directorio `dashboard` y abre el archivo `index.html` en tu
 - Se utiliza un principio de **Zero-Trust LoRa**.
 - Los buffers estáticos (texto plano y ciphertext) están limitados a **256 bytes** para prevenir desbordamientos de memoria al cifrar con `mbedtls`.
 - Comunicación Gateway a Nube 100% blindada por **mTLS** a través del proxy reverso.
+- Las claves privadas (`certs/*.key`), el `.env` y el firmware compilado están excluidos por `.gitignore`: genera las tuyas con `scripts/generate_certs.ps1` y nunca las subas al repo.
 
 ## 🔌 Esquema de Hardware (Pinout)
 El sistema hace uso del módulo **SN65HVD230 (CAN)** y del transceptor **SX1278 (LoRa)**. La configuración por defecto es:
