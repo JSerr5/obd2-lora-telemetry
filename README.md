@@ -1,5 +1,3 @@
----
-
 <h1 id="english">🏍️ End-to-End IoT Telemetry System (Honda CB300F)</h1>
 
 > [!NOTE]
